@@ -1,6 +1,6 @@
-# Armbian pro DOTPO1503 (RK3288)
+# Armbian pro DOTPO1503 (Dotykačka) (RK3288)
 
-Zdrojové úpravy pro pokladnu DOTPO1503: Debian Trixie, jádro Armbian `current` 6.18, Xfce a SSH. Základ je pevně určený commit projektu [armbian/build](https://github.com/armbian/build) `d4112b544a73369686572e051b65e83e645bc09f`. Přesný postup je v [BUILD.md](BUILD.md).
+Zdrojové úpravy pro pokladnu DOTPO1503 (Dotykačka): Debian Trixie, jádro Armbian `current` 6.18, Xfce a SSH. Základ je pevně určený commit projektu [armbian/build](https://github.com/armbian/build) `d4112b544a73369686572e051b65e83e645bc09f`. Přesný postup je v [BUILD.md](BUILD.md).
 
 Repozitář obsahuje pouze textové patche a dokumentaci. Neobsahuje obraz systému, původní Android, proprietární zavaděč, přístupové údaje, lokální konfiguraci kiosku ani experimentální skripty.
 
