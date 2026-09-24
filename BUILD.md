@@ -66,4 +66,13 @@ Výstupní obraz Armbianu poskytuje rootfs, ale samotný na testované pokladně
 
 Do FAT32 byly z rootfs zkopírovány `/boot/zImage`, verzovaný `/boot/initrd.img-*` jako `initrd.img` a `/boot/dtb/rk3288-dotpo1503.dtb`. Soubor `extlinux/extlinux.conf` ukazuje na tyto tři soubory a na UUID druhého oddílu (`root=UUID=… rootwait rootfstype=ext4 rw`). Pro zobrazení splash screenu byly ověřeny parametry `quiet splash loglevel=3 plymouth.ignore-serial-consoles vt.global_cursor_default=0 consoleblank=0`; sériová konzole je `ttyS4,115200n8`.
 
-Binární hlavičku Multitool ani hotový obraz zde nezveřejňujeme. Než přepíšete eMMC, ověřte start a periferie z SD a uložte úplnou zálohu původní eMMC. Instalace do eMMC má používat již ověřený SD zavaděč; samotný U-Boot balík z Armbian buildu jej nenahrazuje.
+Ve vydání `v2026.09.24` jsou samostatně dostupné:
+
+- `DOTPO1503-Armbian-clean-v4-public.img.xz`: celý obraz SD, komprimovaný formátem XZ. Byl připraven z fyzicky ověřené čisté verze; před zveřejněním byly odstraněny vygenerované SSH host keys. Při prvním startu se vytvoří nové.
+- `DOTPO1503-tested-multitool-loader-first64MiB.bin`: prvních 64 MiB ověřeného obrazu pro reprodukci rozložení. Obsažené `idbloader.img` a `u-boot-dtb.bin` se binárně shodují s [Multitool pro RK3288](https://github.com/paolosabatino/multitool/tree/d7dc392fe33850f5975aa466538fd889629c430c/sources/rk3288).
+- `linux-u-boot-dotpo1503-current_*.deb`: U-Boot 2025.10 vytvořený Armbian buildem ze [zdrojového commitu `e50b1e8`](https://github.com/u-boot/u-boot/tree/e50b1e8715011def8aff1588081a2649a2c6cd47) a zdejších U-Boot patchů. **Tento balík není zavaděčem, s nímž byl ověřen start SD a eMMC**, a nemá se naslepo instalovat na fungující zařízení.
+- `DOTPO1503-package-manifest.tsv` a `SHA256SUMS`: verze nainstalovaných balíků a kontrolní součty release souborů.
+
+Hotový obraz lze zapsat přímo z `.img.xz` pomocí balenaEtcher. Po stažení ověřte `sha256sum -c SHA256SUMS`. Obraz je pro konkrétní hardwarovou revizi DOTPO1503; nejprve ho otestujte na SD. Než přepíšete eMMC, uložte úplnou zálohu původní eMMC. Instalace do eMMC má používat již ověřený SD zavaděč; samostatný U-Boot balík z Armbian buildu jej nenahrazuje.
+
+Zdrojové úpravy obrazu jsou v tomto repozitáři a přesný výchozí commit Armbianu je uveden výše. Multitool vychází z projektu Paola Sabatina pod GPL-2.0; binární komponenty Rockchip používají [licenci rkbin](https://github.com/rockchip-linux/rkbin/blob/master/LICENSE). Licenční texty balíků systému jsou v obrazu pod `/usr/share/doc/*/copyright` a přesné verze v manifestu. Při dalším šíření obrazu zachovejte tato oznámení a zpřístupněte odpovídající zdrojové kódy podle licencí jednotlivých komponent.
