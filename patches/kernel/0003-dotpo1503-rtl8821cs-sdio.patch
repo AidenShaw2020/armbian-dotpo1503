@@ -1,0 +1,44 @@
+--- a/arch/arm/boot/dts/rockchip/rk3288-dotpo1503.dts
++++ b/arch/arm/boot/dts/rockchip/rk3288-dotpo1503.dts
+@@ -18,6 +18,15 @@
+         pinctrl-names = "default";
+         pinctrl-0 = <&otg_vbus_drv>;
+     };
++
++    sdio_pwrseq: sdio-pwrseq {
++        compatible = "mmc-pwrseq-simple";
++        clocks = <&rk808 1>;
++        clock-names = "ext_clock";
++        pinctrl-names = "default";
++        pinctrl-0 = <&wifi_enable_h>;
++        reset-gpios = <&gpio4 RK_PD4 GPIO_ACTIVE_LOW>;
++    };
+ };
+ 
+ &backlight {
+@@ -88,6 +97,25 @@
+     vmmc-supply = <&vcc_wl>;
+ };
+ 
++&sdio0 {
++    status = "okay";
++    bus-width = <4>;
++    cap-sd-highspeed;
++    keep-power-in-suspend;
++    non-removable;
++    mmc-pwrseq = <&sdio_pwrseq>;
++    pinctrl-names = "default";
++    pinctrl-0 = <&sdio0_bus4 &sdio0_cmd &sdio0_clk>;
++};
++
++&pinctrl {
++    sdio-pwrseq {
++        wifi_enable_h: wifi-enable-h {
++            rockchip,pins = <4 RK_PD4 RK_FUNC_GPIO &pcfg_pull_none>;
++        };
++    };
++};
++
+ /* RK808 LDO names and voltages differ from the reference EVB wiring. */
+ &rk808 {
+     vcc8-supply = <&vcc_io>;

@@ -1,0 +1,26 @@
+--- a/arch/arm/boot/dts/rockchip/rk3288-dotpo1503.dts
++++ b/arch/arm/boot/dts/rockchip/rk3288-dotpo1503.dts
+@@ -45,6 +45,7 @@
+ };
+ 
+ &edp {
++    force-hpd;
+     status = "okay";
+ };
+ 
+--- a/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
++++ b/drivers/gpu/drm/bridge/analogix/analogix_dp_core.c
+@@ -992,7 +992,12 @@ static int analogix_dp_atomic_check(struct drm_connector *connector,
+ 	if (WARN_ON(!conn_state))
+ 		return -ENODEV;
+ 
+-	conn_state->self_refresh_aware = true;
++	/*
++	 * DOTPO1503's eDP panel blanks as soon as it enters self refresh.
++	 * Keep the link active on this board.
++	 */
++	conn_state->self_refresh_aware =
++		!of_machine_is_compatible("dotpo,dotpo1503");
+ 
+ 	if (!conn_state->crtc)
+ 		return 0;

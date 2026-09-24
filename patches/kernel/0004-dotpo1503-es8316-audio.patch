@@ -1,0 +1,66 @@
+--- a/arch/arm/boot/dts/rockchip/rk3288-dotpo1503.dts
++++ b/arch/arm/boot/dts/rockchip/rk3288-dotpo1503.dts
+@@ -27,6 +27,39 @@
+         pinctrl-0 = <&wifi_enable_h>;
+         reset-gpios = <&gpio4 RK_PD4 GPIO_ACTIVE_LOW>;
+     };
++
++    speaker_amp: speaker-amplifier {
++        compatible = "simple-audio-amplifier";
++        enable-gpios = <&gpio8 RK_PA2 GPIO_ACTIVE_HIGH>;
++        sound-name-prefix = "Speaker Amplifier";
++    };
++
++    sound {
++        compatible = "simple-audio-card";
++        simple-audio-card,name = "DOTPO1503 ES8316";
++        simple-audio-card,format = "i2s";
++        simple-audio-card,mclk-fs = <256>;
++        simple-audio-card,widgets =
++            "Headphone", "Headphones",
++            "Speaker", "Speaker";
++        simple-audio-card,routing =
++            "Headphones", "HPOL",
++            "Headphones", "HPOR",
++            "Speaker Amplifier INL", "HPOL",
++            "Speaker Amplifier INR", "HPOR",
++            "Speaker", "Speaker Amplifier OUTL",
++            "Speaker", "Speaker Amplifier OUTR";
++        simple-audio-card,hp-det-gpios = <&gpio7 RK_PC5 GPIO_ACTIVE_HIGH>;
++        simple-audio-card,aux-devs = <&speaker_amp>;
++
++        simple-audio-card,cpu {
++            sound-dai = <&i2s>;
++        };
++
++        simple-audio-card,codec {
++            sound-dai = <&es8316>;
++        };
++    };
+ };
+ 
+ &backlight {
+@@ -59,6 +92,23 @@
+     max-speed = <1000>;
+ };
+ 
++&i2c2 {
++    status = "okay";
++    clock-frequency = <400000>;
++
++    es8316: codec@10 {
++        compatible = "everest,es8316";
++        reg = <0x10>;
++        clocks = <&cru SCLK_I2S0_OUT>;
++        clock-names = "mclk";
++        #sound-dai-cells = <0>;
++    };
++};
++
++&i2s {
++    status = "okay";
++};
++
+ &vcc_host {
+     gpio = <&gpio0 RK_PB5 GPIO_ACTIVE_HIGH>;
+ };

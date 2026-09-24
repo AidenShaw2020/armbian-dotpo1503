@@ -1,0 +1,173 @@
+--- a/arch/arm/boot/dts/rockchip/rk3288-dotpo1503.dts
++++ b/arch/arm/boot/dts/rockchip/rk3288-dotpo1503.dts
+@@ -0,0 +1,116 @@
++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
++/* DOTPO1503: hardware data transcribed from the stock Android boot DTB. */
++#include "rk3288-evb-rk808.dts"
++
++/ {
++    model = "DOTPO1503";
++    compatible = "dotpo,dotpo1503", "rockchip,rk3288";
++
++    chosen {
++        stdout-path = "serial4:115200n8";
++    };
++
++    vcc_otg_vbus: regulator-otg-vbus {
++        compatible = "regulator-fixed";
++        regulator-name = "vcc_otg_vbus";
++        enable-active-high;
++        gpio = <&gpio0 RK_PB4 GPIO_ACTIVE_HIGH>;
++        pinctrl-names = "default";
++        pinctrl-0 = <&otg_vbus_drv>;
++    };
++};
++
++&backlight {
++    default-brightness-level = <180>;
++    pwms = <&pwm0 0 1000000 0>;
++};
++
++&panel {
++    compatible = "dotpo,dotpo1503-panel";
++    enable-gpios = <&gpio7 RK_PA3 GPIO_ACTIVE_HIGH>;
++    pinctrl-names = "default";
++    pinctrl-0 = <&lcd_cs>;
++    no-hpd;
++};
++
++&lcd_cs {
++    rockchip,pins = <7 RK_PA3 RK_FUNC_GPIO &pcfg_pull_none>;
++};
++
++&edp {
++    status = "okay";
++};
++
++&gmac {
++    phy-mode = "rmii";
++    snps,reset-gpio = <&gpio4 RK_PB0 GPIO_ACTIVE_HIGH>;
++    snps,reset-delays-us = <0 10000 50000>;
++    pinctrl-0 = <&rmii_pins>;
++    max-speed = <1000>;
++};
++
++&vcc_host {
++    gpio = <&gpio0 RK_PB5 GPIO_ACTIVE_HIGH>;
++};
++
++&host_vbus_drv {
++    rockchip,pins = <0 RK_PB5 RK_FUNC_GPIO &pcfg_pull_none>;
++};
++
++&pinctrl {
++    usb {
++        otg_vbus_drv: otg-vbus-drv {
++            rockchip,pins = <0 RK_PB4 RK_FUNC_GPIO &pcfg_pull_none>;
++        };
++    };
++};
++
++&usb_otg {
++    vbus-supply = <&vcc_otg_vbus>;
++    status = "okay";
++};
++
++&usb_host0_ohci {
++    status = "okay";
++};
++
++/* Stock RK808 SWITCH_REG1 feeds the SD slot; the EVB GPIO regulator does not. */
++&vcc_sd {
++    status = "disabled";
++};
++
++&vcc_wl {
++    regulator-name = "vcc_sd";
++};
++
++&sdmmc {
++    vmmc-supply = <&vcc_wl>;
++};
++
++/* RK808 LDO names and voltages differ from the reference EVB wiring. */
++&rk808 {
++    vcc8-supply = <&vcc_io>;
++    vcc9-supply = <&vcc_io>;
++    vcc12-supply = <&vcc_io>;
++    vddio-supply = <&vcc_io>;
++};
++
++&vccio_pmu {
++    regulator-name = "vcc_tp";
++};
++
++&vcc_tp {
++    regulator-name = "vcca_codec";
++};
++
++&vcc18_lcd {
++    regulator-name = "vcc_wl";
++    regulator-min-microvolt = <1800000>;
++    regulator-max-microvolt = <1800000>;
++};
++
++&vcca_codec {
++    regulator-name = "vcc18_lcd";
++    regulator-min-microvolt = <1800000>;
++    regulator-max-microvolt = <1800000>;
++};
+--- a/arch/arm/boot/dts/rockchip/Makefile
++++ b/arch/arm/boot/dts/rockchip/Makefile
+@@ -21,6 +21,7 @@
+ 	rk3229-evb.dtb \
+ 	rk3229-xms6.dtb \
+ 	rk3288-evb-act8846.dtb \
++	rk3288-dotpo1503.dtb \
+ 	rk3288-evb-rk808.dtb \
+ 	rk3288-firefly-beta.dtb \
+ 	rk3288-firefly.dtb \
+--- a/drivers/gpu/drm/panel/panel-edp.c
++++ b/drivers/gpu/drm/panel/panel-edp.c
+@@ -1622,6 +1622,31 @@
+ 	},
+ };
+ 
++/* DOTPO1503 stock Android DTB: fixed 1920x1080 eDP, no usable EDID. */
++static const struct display_timing dotpo1503_timing = {
++    .pixelclock = { 140000000, 140000000, 140000000 },
++    .hactive = { 1920, 1920, 1920 },
++    .hfront_porch = { 180, 180, 180 },
++    .hback_porch = { 70, 70, 70 },
++    .hsync_len = { 30, 30, 30 },
++    .vactive = { 1080, 1080, 1080 },
++    .vfront_porch = { 23, 23, 23 },
++    .vback_porch = { 16, 16, 16 },
++    .vsync_len = { 6, 6, 6 },
++    .flags = DISPLAY_FLAGS_HSYNC_LOW | DISPLAY_FLAGS_VSYNC_LOW,
++};
++
++static const struct panel_desc dotpo1503_panel = {
++    .timings = &dotpo1503_timing,
++    .num_timings = 1,
++    .bpc = 8,
++    .delay = {
++        .hpd_absent = 120,
++        .enable = 600,
++        .unprepare = 200,
++    },
++};
++
+ static const struct of_device_id platform_of_match[] = {
+ 	{
+ 		/* Must be first */
+@@ -1644,6 +1669,9 @@
+ 	 * bus.
+ 	 */
+ 	{
++		.compatible = "dotpo,dotpo1503-panel",
++		.data = &dotpo1503_panel,
++	}, {
+ 		.compatible = "auo,b101ean01",
+ 		.data = &auo_b101ean01,
+ 	}, {
